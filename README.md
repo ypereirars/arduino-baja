@@ -26,3 +26,6 @@ IMPORTANTE: O pino RST do ESP8266 deve ser conectado ao GND rapidamente (~1 segu
 ![ScreenShot](https://raw.githubusercontent.com/guyz/pyesp8266/master/esp8266_pinout.png)
 
 Pinos ESP8266
+
+### Referências
+* https://github.com/douglaszuqueto/ESP8266_MQTT
