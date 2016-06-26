@@ -8,16 +8,16 @@
  #include <PubSubClient.h> //It only supports QoS0 or 1
 
 //Wifi ssid and password
-const char* ssid = "...";
-const char* password = "...";
+const char* SSID = "...";
+const char* PASSWORD = "...";
 
 //MQTT server and port
-const char* mqtt_server = "192.168.25.9";
-uint16_t mqtt_port = 1884;
+const char* MQTT_SERVER = "192.168.25.9";
+uint16_t MQTT_PORT = 1884;
 
 //PubSubClient configuration
-WiFiClient espClient;
-PubSubClient client(espClient);
+WiFiClient ESP_CLIENT;
+PubSubClient client(ESP_CLIENT);
 
 long lastMsg = 0; //Time lapsed since last message arrived
 char msg[50];     //Message to publish
@@ -26,22 +26,55 @@ int inc = 1;
 
 void setup() {
   Serial.begin(115200); //Start serial communication
-  setup_wifi(); //Connect to the wifi
+  setupWifi(); //Connect to the wifi
 
-  client.setServer(mqtt_server, mqtt_port);  //Set mqtt server
+  client.setServer(MQTT_SERVER, MQTT_PORT);  //Set mqtt server
   client.setCallback(callback); //set a callback (optional)
 }
 
 void loop() {
   if (!client.connected()) {
-    reconnect();
+    reconnectMQTT();
   }
-  client.loop();
 
+  //Reconnect to wifi in case of it looses connection
+  reconnectWifi();
+
+  client.loop();
   handleSendMessage();
 }
 
-void reconnect() {
+
+//Wifi code
+void setupWifi() {
+  delay(10);
+  // We start by connecting to a WiFi network
+  Serial.println();
+  Serial.print("Connecting to ");
+  Serial.println(SSID);
+
+  WiFi.begin(SSID, PASSWORD);
+
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+
+  Serial.println("");
+  Serial.println("WiFi connected");
+  Serial.println("IP address: ");
+  Serial.println(WiFi.localIP());
+}
+
+void reconnectWifi() {
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(100);
+    Serial.print(".");
+  }
+}
+
+//MQTT code
+void reconnectMQTT() {
   // Loop until we're reconnected
   while (!client.connected()) {
     Serial.print("Attempting MQTT connection...");
@@ -59,29 +92,8 @@ void reconnect() {
   }
 }
 
-void setup_wifi() {
-  delay(10);
-  // We start by connecting to a WiFi network
-  Serial.println();
-  Serial.print("Connecting to ");
-  Serial.println(ssid);
-
-  WiFi.begin(ssid, password);
-
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(500);
-    Serial.print(".");
-  }
-
-  Serial.println("");
-  Serial.println("WiFi connected");
-  Serial.println("IP address: ");
-  Serial.println(WiFi.localIP());
-}
-
-
-//Hendle received mqttt messages
 void callback(char* topic, byte* payload, unsigned int length) {
+  //Hendle received mqttt messages
   Serial.print("Message arrived [");
   Serial.print(topic);
   Serial.print("] ");
