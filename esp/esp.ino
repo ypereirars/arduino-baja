@@ -39,17 +39,7 @@ void loop() {
 
   client.loop();
 
-  // Handle message received from Arduino and publish it
-  if(Serial.available()) {
-    while (Serial.available() > 0) {
-      char c = (char)Serial.read();
-      message += c;
-      delay(20);
-    }
-
-    message.toCharArray(msg, message.length() + 1);
-    client.publish("ESP8266-IPRJ-BAJA/arduino", msg);
-  }
+  handleReceivedMessage();
 }
 
 
@@ -83,6 +73,20 @@ void reconnectMQTT() {
      delay(2000);
    }
  }
+}
+
+void handleReceivedMessage() {
+  // Handle message received from Arduino and publish it
+  if(Serial.available()) {
+    while (Serial.available() > 0) {
+      char c = (char)Serial.read();
+      message += c;
+      delay(20);
+    }
+
+    message.toCharArray(msg, message.length() + 1);
+    client.publish("ESP8266-IPRJ-BAJA/arduino", msg);
+  }
 }
 
 void callback(char* topic, byte* payload, unsigned int length) {
