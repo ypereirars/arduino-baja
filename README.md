@@ -19,11 +19,11 @@ IMPORTANTE:
 * "Upload Speed" deve ser a mesma que "Serial.begin(...)"
 
 ## Como ligar a placa ao FTDI
-![Conexão ESP8266 - FTDI](https://cloud.githubusercontent.com/assets/4396233/16360601/f2f50206-3b41-11e6-9ae1-f17e4855c2fb.png)
+![Conexão ESP8266 - FTDI](https://cloud.githubusercontent.com/assets/4396233/16360656/e4278e04-3b43-11e6-8be6-44a411517cc0.png)
 
 IMPORTANTE: O ESP8266 deve resetado antes de fazer o upload do código. Todo o circuito deve ser ligado em 3.3V.
 
-![Pinos ESP8266](https://cloud.githubusercontent.com/assets/4396233/16360656/e4278e04-3b43-11e6-8be6-44a411517cc0.png)
+![Pinos ESP8266](https://raw.githubusercontent.com/guyz/pyesp8266/master/esp8266_pinout.png)
 
 Pinos ESP8266
 
