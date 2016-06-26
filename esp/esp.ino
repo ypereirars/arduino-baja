@@ -12,7 +12,7 @@ const char* ssid = "...";
 const char* password = "...";
 
 //MQTT server and port
-const char mqtt_server[40] = "192.168.25.9";
+const char* mqtt_server = "192.168.25.9";
 uint16_t mqtt_port = 1884;
 
 //PubSubClient configuration
@@ -22,7 +22,7 @@ PubSubClient client(espClient);
 long lastMsg = 0; //Time lapsed since last message arrived
 char msg[50];     //Message to publish
 long value = 0;
-
+int inc = 1;
 
 void setup() {
   Serial.begin(115200); //Start serial communication
@@ -79,6 +79,8 @@ void setup_wifi() {
   Serial.println(WiFi.localIP());
 }
 
+
+//Hendle received mqttt messages
 void callback(char* topic, byte* payload, unsigned int length) {
   Serial.print("Message arrived [");
   Serial.print(topic);
@@ -88,14 +90,7 @@ void callback(char* topic, byte* payload, unsigned int length) {
   }
   Serial.println();
 
-  // Switch on the LED if an 1 was received as first character
-  if ((char)payload[0] == '1') {
-    digitalWrite(BUILTIN_LED, LOW);   // Turn the LED on (Note that LOW is the voltage level
-    // but actually the LED is on; this is because
-    // it is acive low on the ESP-01)
-  } else {
-    digitalWrite(BUILTIN_LED, HIGH);  // Turn the LED off by making the voltage HIGH
-  }
+  //handle received message
 
 }
 
@@ -111,10 +106,18 @@ void handleSendMessage() {
   long now = millis();
   if (now - lastMsg > 1000) {
     lastMsg = now;
-    value++;
-    snprintf (msg, 75, "hello world #%ld", value);
+
+    if (value == 100 ) {
+      inc = -1;
+    }
+    if (value == 0) {
+      inc = 1;
+    }
+
+    value += inc;
+    snprintf (msg, 75, "%ld", value);
     Serial.print("Publish message: ");
     Serial.println(msg);
-    client.publish("outTopic", msg);
+    client.publish("2/arduino/temperature/", msg);
   }
 }
