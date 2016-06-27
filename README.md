@@ -1,9 +1,9 @@
-# Código Arduino
+# Sistema Embarcado de IoT do IPRJ Baja
 Este projeto consiste em conectar um Arduino - que será responsável pela leitura de sensores em um veículo Baja - ao módulo ESP8266 - o qual transmitirá os dados via MQTT para um [Broker](https://github.com/ypereirars/mqtt-broker).
 
 ## Requisitos
-* Arduino
-* ESP8266
+* Arduino MEGA 2560
+* ESP8266 
 * FTDI (para programar o ESP8266)
 
 ## Como configurar a IDE do Arduino para programar o ESP8266
@@ -26,6 +26,10 @@ IMPORTANTE: O ESP8266 deve resetado antes de fazer o upload do código. Todo o c
 ![Pinos ESP8266](https://raw.githubusercontent.com/guyz/pyesp8266/master/esp8266_pinout.png)
 
 Pinos ESP8266
+
+## Como ligar o ESP8266 ao Arduino
+É necessário que o ESP8266 seja conectado ao Arduino através dos pinos (TX1, RX1), para que possamos utilizar o ``Serial1``. Lembrando, que esta forma só funcionará no Arduino MEGA.
+![ESP8266 conectado ao Arduino](https://cloud.githubusercontent.com/assets/4396233/16366031/8fcf1360-3be6-11e6-805b-40386ddd0239.png)
 
 ## Referências
 * https://github.com/douglaszuqueto/ESP8266_MQTT
