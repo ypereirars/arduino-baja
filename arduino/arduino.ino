@@ -42,7 +42,7 @@ int minLightLevel,
 void setup() {
   Serial.begin(115200);   //Arduino Serial
   Serial1.begin(115200);  //ESP8266 Serial
-
+  Serial.setTimeout(10);
 //BEGIN MOCK DATA
   //Using 3.3V
   analogReference(EXTERNAL);
@@ -74,18 +74,19 @@ void loop() {
   temperatureInCelsius = convertResistenceIntoTemperature(averageTemperatureReading);
   lightLevel  = ajustLightLevel(minLightLevel, maxLightLevel);
 
-  snprintf(buff, MAX_BUFF_LENGTH, "lumn:%d", lightLevel);
+  snprintf(buff, MAX_BUFF_LENGTH, "lightLevel:%d", lightLevel);
   writeDataToESPSerial(buff);
-  delay(250);
+
   dtostrf(averageTemperatureReading, 4, 2, buffFloat); // snprintf does not work for float point in arduino.
-  snprintf(buff, MAX_BUFF_LENGTH, "temp:%s;", buffFloat);
+  snprintf(buff, MAX_BUFF_LENGTH, "temperature:%s", buffFloat);
   writeDataToESPSerial(buff);
-  delay(500);
+
+  delay(1000);
 //END MOCK DATA
 }
 
 void writeDataToESPSerial(char* msg) {
-  Serial1.print(msg);
+  Serial1.println(msg);
 }
 
 //Send data read from serial [MOCK]

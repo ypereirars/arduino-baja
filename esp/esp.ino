@@ -77,15 +77,42 @@ void reconnectMQTT() {
 
 void handleReceivedMessage() {
   // Handle message received from Arduino and publish it
+  String sensor = "";
+  String value = "";
+  String topic = "ESP8266-IPRJ-BAJA/arduino/";
+  String topicCpy = topic;
+  char topicChar   [50];
+
   if(Serial.available()) {
     while (Serial.available() > 0) {
       char c = (char)Serial.read();
+
+      if (c == ':') {
+        sensor = message;
+        message = "";
+        continue;
+      }
+
+      if (c == '\n' || c == '\r') {
+        value = message;
+        message = "";
+
+        if (sensor.length() > 0 && value.length() > 0) {
+          value.toCharArray(msg, value.length() + 1);
+
+          topicCpy.concat(sensor);
+
+          topicCpy.toCharArray(topicChar, topicCpy.length() + 1);
+          topicCpy = topic;
+          client.publish(topicChar, msg);
+          sensor = "";
+          value = "";
+        }
+        continue;
+      }
       message += c;
       delay(20);
     }
-
-    message.toCharArray(msg, message.length() + 1);
-    client.publish("ESP8266-IPRJ-BAJA/arduino", msg);
   }
 }
 
