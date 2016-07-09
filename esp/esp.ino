@@ -10,13 +10,12 @@
 //Wifi ssid and password
 const char* SSID = "WiFi";
 const char* PASSWORD = "P@ssw0rd!";
+const int INPUT_SIZE = 500;
 
 //MQTT server and port
 const char* MQTT_SERVER = "192.168.25.9";
 uint16_t MQTT_PORT = 1884;
 
-char msg[50];
-String message = "";
 //PubSubClient configuration
 WiFiClient ESP_CLIENT;
 PubSubClient client(ESP_CLIENT);
@@ -57,7 +56,6 @@ void setupWifi() {
 
 void reconnectWifi() {
  while (WiFi.status() != WL_CONNECTED) {
-   Serial.println("Reconnecting wifi");
    delay(100);
  }
 }
@@ -79,16 +77,33 @@ void reconnectMQTT() {
 
 void handleReceivedMessage() {
   // Handle message received from Arduino and publish it
-  String topic = "ESP8266-IPRJ-BAJA/arduino/";
-  String msgString = "";
-  char msg[300];
 
-  if(Serial.available()) {
-    msgString = Serial.readStringUntil(';');
-    msgString.toCharArray(msg, msgString.length()+1);
+  // Get next command from Serial (add 1 for final 0)
+  char input[INPUT_SIZE + 1];
+  char topic[INPUT_SIZE + 1];
 
-    client.publish("ESP8266-IPRJ-BAJA/arduino/#", msg);
+  byte size = Serial.readBytes(input, INPUT_SIZE);
+  // Add the final 0 to end the C string
+  input[size] = 0;
+
+  // Read each command pair
+  char* command = strtok(input, "&");
+
+  while (command != 0) {
+    char* separator = strchr(command, ':');
+    if (separator != 0)
+    {
+      *separator = 0;
+      char* sensor = command;
+      ++separator;
+      char* value = separator;
+
+      snprintf(topic, INPUT_SIZE,"ESP8266-IPRJ-BAJA/arduino/%s", sensor);
+      client.publish(topic, value);
+    }
+    command = strtok(0, "&");
   }
+
   delay(200);
 }
 
