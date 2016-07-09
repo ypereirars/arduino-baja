@@ -22,7 +22,7 @@ const int NUMBER_OF_SAMPLES      = 5;
 //B coefficient
 const int B_COEFFICIENT          = 3950;
 
-const int MAX_BUFF_LENGTH        = 50;
+const int MAX_BUFF_LENGTH        = 100;
 
 //Variables used to read and calibrate light level.
 int minLightLevel,
@@ -42,7 +42,6 @@ int minLightLevel,
 void setup() {
   Serial.begin(115200);   //Arduino Serial
   Serial1.begin(115200);  //ESP8266 Serial
-  Serial.setTimeout(10);
 //BEGIN MOCK DATA
   //Using 3.3V
   analogReference(EXTERNAL);
@@ -57,7 +56,8 @@ void setup() {
 void loop() {
 //BEGIN MOCK DATA
   uint8_t i;
-  char buff[MAX_BUFF_LENGTH];
+  char buff[5];
+  String sendMsg = "";
   char buffFloat[5];
   float averageTemperatureReading = 0.0,
         temperatureInCelsius;
@@ -74,18 +74,23 @@ void loop() {
   temperatureInCelsius = convertResistenceIntoTemperature(averageTemperatureReading);
   lightLevel  = ajustLightLevel(minLightLevel, maxLightLevel);
 
-  snprintf(buff, MAX_BUFF_LENGTH, "lightLevel:%d", lightLevel);
-  writeDataToESPSerial(buff);
+  snprintf(buff, MAX_BUFF_LENGTH, "ligh:%d;", lightLevel);
+  sendMsg.concat(buff);
 
   dtostrf(averageTemperatureReading, 4, 2, buffFloat); // snprintf does not work for float point in arduino.
-  snprintf(buff, MAX_BUFF_LENGTH, "temperature:%s", buffFloat);
-  writeDataToESPSerial(buff);
+  snprintf(buff, MAX_BUFF_LENGTH, "temp:%s;", buffFloat);
+  sendMsg.concat(buff);
 
-  delay(1000);
+  //MOCK DATA SENSOR
+  sendMsg.concat("sen1:54.2;sen2:100;sen3:33;sen4:49;sen5:121.00");
+
+
+  writeDataToESPSerial(sendMsg);
+  delay(250);
 //END MOCK DATA
 }
 
-void writeDataToESPSerial(char* msg) {
+void writeDataToESPSerial(String msg) {
   Serial1.println(msg);
 }
 

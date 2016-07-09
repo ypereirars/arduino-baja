@@ -31,6 +31,7 @@ void setup() {
 
 void loop() {
   if (!client.connected()) {
+    Serial.println("Reconnecting MQTT");
    reconnectMQTT();
   }
 
@@ -56,6 +57,7 @@ void setupWifi() {
 
 void reconnectWifi() {
  while (WiFi.status() != WL_CONNECTED) {
+   Serial.println("Reconnecting wifi");
    delay(100);
  }
 }
@@ -77,43 +79,17 @@ void reconnectMQTT() {
 
 void handleReceivedMessage() {
   // Handle message received from Arduino and publish it
-  String sensor = "";
-  String value = "";
   String topic = "ESP8266-IPRJ-BAJA/arduino/";
-  String topicCpy = topic;
-  char topicChar   [50];
+  String msgString = "";
+  char msg[300];
 
   if(Serial.available()) {
-    while (Serial.available() > 0) {
-      char c = (char)Serial.read();
+    msgString = Serial.readStringUntil(';');
+    msgString.toCharArray(msg, msgString.length()+1);
 
-      if (c == ':') {
-        sensor = message;
-        message = "";
-        continue;
-      }
-
-      if (c == '\n' || c == '\r') {
-        value = message;
-        message = "";
-
-        if (sensor.length() > 0 && value.length() > 0) {
-          value.toCharArray(msg, value.length() + 1);
-
-          topicCpy.concat(sensor);
-
-          topicCpy.toCharArray(topicChar, topicCpy.length() + 1);
-          topicCpy = topic;
-          client.publish(topicChar, msg);
-          sensor = "";
-          value = "";
-        }
-        continue;
-      }
-      message += c;
-      delay(20);
-    }
+    client.publish("ESP8266-IPRJ-BAJA/arduino/#", msg);
   }
+  delay(200);
 }
 
 void callback(char* topic, byte* payload, unsigned int length) {
