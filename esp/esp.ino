@@ -23,7 +23,7 @@ PubSubClient client(ESP_CLIENT);
 void setup() {
  Serial.begin(115200); //Start serial communication
  setupWifi(); //Connect to the wifi
-
+ Serial.setTimeout(200);
  client.setServer(MQTT_SERVER, MQTT_PORT);  //Set mqtt server
  client.setCallback(callback); //set a callback (optional)
 }
