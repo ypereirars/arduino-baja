@@ -23,6 +23,7 @@ const int NUMBER_OF_SAMPLES      = 5;
 const int B_COEFFICIENT          = 3950;
 
 const int MAX_BUFF_LENGTH        = 100;
+const int FLOAT_PRECISION        = 5;
 
 //Variables used to read and calibrate light level.
 int minLightLevel,
@@ -42,7 +43,7 @@ int minLightLevel,
 void setup() {
   Serial.begin(115200);   //Arduino Serial
   Serial1.begin(115200);  //ESP8266 Serial
-//BEGIN MOCK DATA
+  //BEGIN MOCK DATA
   //Using 3.3V
   analogReference(EXTERNAL);
 
@@ -50,15 +51,14 @@ void setup() {
   lightLevel = analogRead(PHOTO_PIN);
   minLightLevel = lightLevel - 30;
   maxLightLevel = lightLevel;
-//END MOCK DATA
+  //END MOCK DATA
 }
 
 void loop() {
-//BEGIN MOCK DATA
+  //BEGIN MOCK DATA
   uint8_t i;
-  char buff[5];
-  String sendMsg = "";
-  char buffFloat[5];
+  char buff[MAX_BUFF_LENGTH],
+       buffFloat[FLOAT_PRECISION];
   float averageTemperatureReading = 0.0,
         temperatureInCelsius;
 
@@ -74,44 +74,20 @@ void loop() {
   temperatureInCelsius = convertResistenceIntoTemperature(averageTemperatureReading);
   lightLevel  = ajustLightLevel(minLightLevel, maxLightLevel);
 
-  snprintf(buff, MAX_BUFF_LENGTH, "ligh:%d;", lightLevel);
-  sendMsg.concat(buff);
+  snprintf(buff, MAX_BUFF_LENGTH, "lightLevel:%d&", lightLevel);
+  writeDataToESPSerial(buff);
 
   dtostrf(averageTemperatureReading, 4, 2, buffFloat); // snprintf does not work for float point in arduino.
-  snprintf(buff, MAX_BUFF_LENGTH, "temp:%s;", buffFloat);
-  sendMsg.concat(buff);
+  snprintf(buff, MAX_BUFF_LENGTH, "temperature:%s&", buffFloat);
+  writeDataToESPSerial(buff);
 
-  //MOCK DATA SENSOR
-  sendMsg.concat("sen1:54.2;sen2:100;sen3:33;sen4:49;sen5:121.00");
-
-
-  writeDataToESPSerial(sendMsg);
-  delay(250);
-//END MOCK DATA
+  delay(500);
+  //END MOCK DATA
 }
 
-void writeDataToESPSerial(String msg) {
-  Serial1.println(msg);
+void writeDataToESPSerial(char* msg) {
+  Serial1.print(msg);
 }
-
-//Send data read from serial [MOCK]
-/*
-void readDataFromArduinoSerial() {
-  String message = "";
-
-  if (Serial.available() > 0) { // Reads serial if there's data
-    while (Serial.available() > 0) { // Keep reading until there's no data
-      char c = (char)Serial.read(); // Read char by char
-      message += c;
-      delay(20);
-    }
-    writeDataToESPSerial(message); //Write data to ESP
-  }
-}
-*/
-
-
-
 
 int ajustLightLevel(int &minLevel, int &maxLevel) {
   int adjustedLightLevel;
